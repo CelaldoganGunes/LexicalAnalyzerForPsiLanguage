@@ -1,0 +1,63 @@
+State: ID, Keyword, Integer
+    State değiştiğinde çalışacak: isIdentifier()
+    alnum _
+        yeni state: aynı state
+    + - * / : =
+        yeni state: Operator
+    ({[ )}]
+        yeni state: Parantez
+    "
+        yeni state: String
+    ;
+        yeni state: EndOfLine
+
+State: Operator
+    State değiştiğinde çalışacak: isOperator()
+    alnum _
+        yeni state: ID
+    / üstüne * gelirse:
+        yeni state: Comment
+    + - * / : =
+        yeni state: aynı state
+    ({[ )}]
+        yeni state: Parantez
+    "
+        yeni state: String
+    ;
+        yeni state: EndOfLine
+
+State: Comment
+    State değiştiğinde çalışacak: isComment()
+    * üstüne / gelirse:
+        yeni state: ID
+
+State: String
+    State değiştiğinde çalışacak: isString()
+    "
+        yeni state: ID
+
+State: Parantez
+    State değiştiğinde çalışacak: isParantez()
+    alnum _
+        yeni state: ID
+    + - * / : =
+        yeni state: Operator
+    ({[ )}]
+        yeni state: aynı state
+    "
+        yeni state: String
+    ;
+        yeni state: EndOfLine
+
+State: EndOfLine
+    State değiştiğinde çalışacak: isEndOfLine()
+    alnum _
+        yeni state: ID
+    + - * / : =
+        yeni state: Operator
+    ({[ )}]
+        yeni state: Parantez
+    "
+        yeni state: String
+    ;
+        yeni state: aynı state
