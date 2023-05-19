@@ -219,11 +219,20 @@ void handle(char line[], char token[]) {
                 strcpy(token, "");
                 continue;
             }
-
         }
         else if (active_state == STRING)
         {
+            strncat(token,&new_char, 1);
 
+            int token_length = strlen(token);
+
+            if (token_length > 0 && token[token_length-1] == '"')
+            {
+                printf("String(%s)\n",token);
+                active_state = ID;
+                strcpy(token, "");
+                continue;
+            }
         }
         else if (active_state == PARANTEZ)
         {
@@ -258,7 +267,7 @@ int main() {
 
     if(feof(inputFile))
     {
-        if (active_state == COMMENT)
+        if (active_state == COMMENT || active_state == STRING)
         {
             printf("Lexical Error, EOF during Comment\n");
         }
