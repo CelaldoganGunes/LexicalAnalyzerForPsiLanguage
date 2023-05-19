@@ -219,6 +219,7 @@ void handle(char line[], char token[]) {
                 strcpy(token, "");
                 continue;
             }
+
         }
         else if (active_state == STRING)
         {
@@ -236,6 +237,7 @@ void handle(char line[], char token[]) {
 }
 
 int main() {
+    printf("\n");
     char token[1024] = "";
 
     FILE *inputFile, *outputFile;
@@ -250,9 +252,23 @@ int main() {
 
     while (fgets(line, sizeof(line), inputFile))
     {
-        //printf("%s\n", line);
-
+        //printf("\nNew Line: %s", line);
         handle(line, token);
+    }
+
+    if(feof(inputFile))
+    {
+        if (active_state == COMMENT)
+        {
+            printf("Lexical Error, EOF during Comment\n");
+        }
+        printf("END OF FILE\n");
+        /* EOF */
+    }
+    else if(ferror(inputFile))
+    {
+        printf("ERROR\n");
+        /* Errror */
     }
 
 
