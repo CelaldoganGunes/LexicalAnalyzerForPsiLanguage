@@ -83,7 +83,7 @@ int isOperator(char str[]){
             return 0;
         }
     }
-    printf("Unvalid Operator(%s)\n", str);
+    printf("Invalid Operator(%s)\n", str);
     return 0;
 
 }
@@ -99,8 +99,7 @@ void state_change(char token[], char new_char, enum States new_state, int (*f_na
     strncat(token,&new_char, 1);
 }
 
-void handle(char line[]) {
-    char token[1024] = "";
+void handle(char line[], char token[]) {
 
     int length = strlen(line);
 
@@ -138,6 +137,12 @@ void handle(char line[]) {
             else if (new_char==';')
             {
                 state_change(token, new_char, ENDOFLINE, isIdentifier);
+                continue;
+            }
+            else
+            {
+                state_change(token, '\0', ID, isIdentifier);
+                printf("Invalid Character(%c)\n",new_char);
                 continue;
             }
         }
@@ -195,10 +200,25 @@ void handle(char line[]) {
                 state_change(token, new_char, ENDOFLINE, isOperator);
                 continue;
             }
+            else
+            {
+                state_change(token, '\0', ID, isOperator);
+                printf("Unvalid Character(%c)\n",new_char);
+                continue;
+            }
         }
         else if (active_state == COMMENT)
         {
+            strncat(token,&new_char, 1);
 
+            int token_length = strlen(token);
+
+            if (token_length > 1 && token[token_length-2] == '*' && token[token_length-1] == '/')
+            {
+                active_state = ID;
+                strcpy(token, "");
+                continue;
+            }
         }
         else if (active_state == STRING)
         {
@@ -216,6 +236,7 @@ void handle(char line[]) {
 }
 
 int main() {
+    char token[1024] = "";
 
     FILE *inputFile, *outputFile;
     char line[1024];
@@ -231,8 +252,7 @@ int main() {
     {
         //printf("%s\n", line);
 
-        handle(line);
-        break;
+        handle(line, token);
     }
 
 
