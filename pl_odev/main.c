@@ -21,6 +21,7 @@ enum States active_state = ID;
 
 int isIdentifier(char str[])
 {
+    //printf("isID %s\n", str);
     int length = strlen(str);
 
     bool isInteger = true;
@@ -88,8 +89,32 @@ int isOperator(char str[]){
 
 }
 
+int isParantez(char str[])
+{
+    //printf("isParantez %s\n",str);
+    char parantezler[6] = {'(', ')', '[', ']', '{', '}'};
+    char parantez_adlari[6][19] = {"LeftPar","RightPar","LeftSquareBracket","RightSquareBracket", "LeftCurlyBracket","RightCurlyBracket"};
+
+    for(int pos = 0; pos < strlen(str); pos++)
+    {
+        for(int i = 0; i < 6; ++i){
+            if(parantezler[i] == str[pos])
+            {
+                printf("%s\n",parantez_adlari[i]);
+                continue;
+            }
+        }
+    }
+}
+
+int isEndOFLine(char str[])
+{
+    printf("EndOfLine\n");
+}
+
 void state_change(char token[], char new_char, enum States new_state, int (*f_name)(char str[]))
 {
+    //printf("Token: %s\n", token);
     if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
     {
         f_name(token);
@@ -236,16 +261,87 @@ void handle(char line[], char token[]) {
         }
         else if (active_state == PARANTEZ)
         {
-
+            if (new_char == ' ' || new_char == '\n' || new_char == '\0')
+            {
+                state_change(token, '\0', ID, isParantez);
+                continue;
+            }
+            else if (isalnum(new_char) || new_char == '_')
+            {
+                state_change(token, new_char, ID, isParantez);
+                continue;
+            }
+            else if (new_char=='+' || new_char=='-' || new_char=='*' || new_char=='/' || new_char==':' || new_char=='=')
+            {
+                state_change(token, new_char, OPERATOR, isParantez);
+                continue;
+            }
+            else if (new_char=='(' || new_char==')' || new_char=='{' || new_char=='}' || new_char=='[' || new_char==']')
+            {
+                strncat(token,&new_char, 1);
+                continue;
+            }
+            else if (new_char=='"')
+            {
+                state_change(token, new_char, STRING, isParantez);
+                continue;
+            }
+            else if (new_char==';')
+            {
+                state_change(token, new_char, ENDOFLINE, isParantez);
+                continue;
+            }
+            else
+            {
+                state_change(token, '\0', ID, isParantez);
+                printf("Invalid Character(%c)\n",new_char);
+                continue;
+            }
         }
         else if (active_state == ENDOFLINE)
         {
-
+            if (new_char == ' ' || new_char == '\n' || new_char == '\0')
+            {
+                state_change(token, '\0', ID, isEndOFLine);
+                continue;
+            }
+            else if (isalnum(new_char) || new_char == '_')
+            {
+                state_change(token, new_char, ID, isEndOFLine);
+                continue;
+            }
+            else if (new_char=='+' || new_char=='-' || new_char=='*' || new_char=='/' || new_char==':' || new_char=='=')
+            {
+                state_change(token, new_char, OPERATOR, isEndOFLine);
+                continue;
+            }
+            else if (new_char=='(' || new_char==')' || new_char=='{' || new_char=='}' || new_char=='[' || new_char==']')
+            {
+                state_change(token, new_char, PARANTEZ, isEndOFLine);
+                continue;
+            }
+            else if (new_char=='"')
+            {
+                state_change(token, new_char, STRING, isEndOFLine);
+                continue;
+            }
+            else if (new_char==';')
+            {
+                state_change(token, new_char, ENDOFLINE, isEndOFLine);
+                continue;
+            }
+            else
+            {
+                state_change(token, '\0', ID, isEndOFLine);
+                printf("Invalid Character(%c)\n",new_char);
+                continue;
+            }
         }
     }
 }
 
 int main() {
+
     printf("\n");
     char token[1024] = "";
 
@@ -272,12 +368,12 @@ int main() {
             printf("Lexical Error, EOF during Comment\n");
         }
         printf("END OF FILE\n");
-        /* EOF */
+        // EOF
     }
     else if(ferror(inputFile))
     {
         printf("ERROR\n");
-        /* Errror */
+        /// Errror
     }
 
 
