@@ -2,9 +2,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdlib.h> //malloc için
 
 #define MAX_IDENTIFIER_SIZE 30
 #define MAX_INTEGER_SIZE 10
+
 
 enum States {
     ID,
@@ -19,8 +21,6 @@ enum States active_state = ID;
 
 int isIdentifier(char str[])
 {
-    printf("\n");
-    //printf("isIdentifier:%s\n",str);
     int length = strlen(str);
 
     bool isInteger = true;
@@ -37,25 +37,25 @@ int isIdentifier(char str[])
     {
         if (length > MAX_INTEGER_SIZE)
         {
-            printf("Error: Integer must be shorter than 11 chars.");
+            printf("Error: Integer must be shorter than 11 chars.\n");
             return 0;
         }
 
         //NEGATİFLİĞİ UNUTMA
 
-        printf("IntConst(%s)",str);
+        printf("IntConst(%s)\n",str);
         return 0;
     }
 
     if (!isalpha(str[0]))
     {
-        printf("Error: Identifier must start with a letter.");
+        printf("Error: Identifier must start with a letter.\n");
         return 0;
     }
 
     if (length > MAX_IDENTIFIER_SIZE)
     {
-        printf("Error: Identifier must be shorter than 31 chars.");
+        printf("Error: Identifier must be shorter than 31 chars.\n");
         return 0;
     }
 
@@ -64,12 +64,12 @@ int isIdentifier(char str[])
 
     for(int i = 0; i < 18; ++i){
         if(strcmp(keywords[i], str) == 0){
-            printf("Keyword(%s)",str);
+            printf("Keyword(%s)\n",str);
             return 0;
         }
     }
 
-    printf("Identifier(%s)",str);
+    printf("Identifier(%s)\n",str);
     return 0;
 }
 
@@ -79,35 +79,40 @@ int isOperator(char str[]){
     {
         if(strcmp(operators[i], str) == 0) //aynıysa 0dır
         {
-            printf("\nOperator(%s)", str);
+            printf("Operator(%s)\n", str);
             return 0;
         }
     }
-    printf("\nUnvalid Operator(%s)", str);
+    printf("Unvalid Operator(%s)\n", str);
     return 0;
 
 }
 
+void state_change(char token[], char new_char, enum States new_state, void (*f_name)(char str[]))
+{
+    if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
+    {
+        f_name(token);
+    }
+    active_state = new_state;
+    strcpy(token, "");
+    strncat(token,&new_char, 1);
+}
 
-//satırı gönderiyoruz
+
 void handle(char line[]) {
-    char token[100] = "";
+    char token[1024] = "";
 
     int length = strlen(line);
-    printf("length: %d",length);
 
     for (int i = 0; i < length; i++)
     {
-        //int token_length = strlen(token);
-        //printf("token: %s, token len:%d\n", token, token_length);
-        //printf("char: %c\n", line[i]);
         char new_char = line[i];
 
         if (active_state == ID)
         {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0')
             {
-                //printf("\nbosluk");
                 if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
                 {
                     isIdentifier(token);
@@ -169,8 +174,6 @@ void handle(char line[]) {
         {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0')
             {
-                //printf("\nbosluk");
-                //printf("token: %s\n", token);
                 if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
                 {
                     isOperator(token);
@@ -193,7 +196,6 @@ void handle(char line[]) {
             {
                 strncat(token,&new_char, 1);
 
-                //alttakinin doğrusu
                 int token_length = strlen(token);
 
                 if (token_length == 2 && strcmp(token, "/*") == 0)
@@ -203,7 +205,7 @@ void handle(char line[]) {
                 }
                 else if (token_length > 2 && token[token_length-2] == '/' && token[token_length-1] == '*')
                 {
-                    //For döngüsü ile ekledik çünkü stringin sonunda \0 koymadığımızdan strncopy bozuk çalışıyor.
+                    //For döngüsü ile ekledik çünkü stringin sonunda strncopy bozuk çalışıyor.
                     char sub_token[] = "";
                     for(int a = 0; a < token_length-2; a++)
                     {
@@ -271,8 +273,9 @@ void handle(char line[]) {
 }
 
 int main() {
+
     FILE *inputFile, *outputFile;
-    char line[100];
+    char line[1024];
 
     // Open the input file
     inputFile = fopen("code.psi", "r");
@@ -283,7 +286,7 @@ int main() {
 
     while (fgets(line, sizeof(line), inputFile))
     {
-        //printf("%s", line);
+        //printf("%s\n", line);
 
         handle(line);
         break;
@@ -297,6 +300,5 @@ int main() {
         printf("Error opening the file!\n");
         return 1;
     }*/
-
     return 0;
 }
