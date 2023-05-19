@@ -88,7 +88,7 @@ int isOperator(char str[]){
 
 }
 
-void state_change(char token[], char new_char, enum States new_state, void (*f_name)(char str[]))
+void state_change(char token[], char new_char, enum States new_state, int (*f_name)(char str[]))
 {
     if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
     {
@@ -98,7 +98,6 @@ void state_change(char token[], char new_char, enum States new_state, void (*f_n
     strcpy(token, "");
     strncat(token,&new_char, 1);
 }
-
 
 void handle(char line[]) {
     char token[1024] = "";
@@ -113,11 +112,7 @@ void handle(char line[]) {
         {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isIdentifier(token);
-                    strcpy(token, "");
-                }
+                state_change(token, '\0', ID, isIdentifier);
                 continue;
             }
             else if (isalnum(new_char) || new_char == '_')
@@ -127,46 +122,22 @@ void handle(char line[]) {
             }
             else if (new_char=='+' || new_char=='-' || new_char=='*' || new_char=='/' || new_char==':' || new_char=='=')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isIdentifier(token);
-                }
-                active_state = OPERATOR;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, OPERATOR, isIdentifier);
                 continue;
             }
             else if (new_char=='(' || new_char==')' || new_char=='{' || new_char=='}' || new_char=='[' || new_char==']')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isIdentifier(token);
-                }
-                active_state = PARANTEZ;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, PARANTEZ, isIdentifier);
                 continue;
             }
             else if (new_char=='"')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isIdentifier(token);
-                }
-                active_state = STRING;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, STRING, isIdentifier);
                 continue;
             }
             else if (new_char==';')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isIdentifier(token);
-                }
-                active_state = ENDOFLINE;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, ENDOFLINE, isIdentifier);
                 continue;
             }
         }
@@ -174,22 +145,12 @@ void handle(char line[]) {
         {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isOperator(token);
-                    strcpy(token, "");
-                }
+                state_change(token, '\0', ID, isOperator);
                 continue;
             }
             else if (isalnum(new_char) || new_char == '_')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isOperator(token);
-                }
-                active_state = ID;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, ID, isOperator);
                 continue;
             }
             else if (new_char=='+' || new_char=='-' || new_char=='*' || new_char=='/' || new_char==':' || new_char=='=')
@@ -221,35 +182,17 @@ void handle(char line[]) {
             }
             else if (new_char=='(' || new_char==')' || new_char=='{' || new_char=='}' || new_char=='[' || new_char==']')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isOperator(token);
-                }
-                active_state = PARANTEZ;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, PARANTEZ, isOperator);
                 continue;
             }
             else if (new_char=='"')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isOperator(token);
-                }
-                active_state = STRING;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, STRING, isOperator);
                 continue;
             }
             else if (new_char==';')
             {
-                if (strcmp(token, "") != 0)//farklıysa, kesinlikle != 0 kullan çünkü 0dan farklı herhangi bir değer olabilir.
-                {
-                    isOperator(token);
-                }
-                active_state = ENDOFLINE;
-                strcpy(token, "");
-                strncat(token,&new_char, 1);
+                state_change(token, new_char, ENDOFLINE, isOperator);
                 continue;
             }
         }
