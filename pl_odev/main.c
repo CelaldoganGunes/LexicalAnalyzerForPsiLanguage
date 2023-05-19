@@ -18,23 +18,6 @@ enum States {
 
 enum States active_state = ID;
 
-int print_to_file(char str[])
-{
-    FILE  *outputFile;
-
-    // Open the output file
-    outputFile = fopen("code.lex", "w");
-
-    if (outputFile == NULL) {
-        printf("Error opening the file!\n");
-        return 1;
-    }
-
-    fprintf(outputFile, "%s\n", str);
-
-    fclose(outputFile);
-}
-
 int isIdentifier(char str[], FILE* outputFile)
 {
     //printf("isID %s\n", str);
