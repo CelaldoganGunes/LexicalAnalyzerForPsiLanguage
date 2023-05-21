@@ -202,7 +202,7 @@ void handle(char line[], char token[], FILE *outputFile) {
     int length = strlen(line);
 
     for (int i = 0; i < length; i++) {
-        char new_char = line[i];
+        char new_char = tolower(line[i]);
 
         if (active_state == ID) {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0') {
