@@ -94,6 +94,11 @@ enum States {
 enum States active_state = ID;
 
 int isIdentifier(char str[], FILE *outputFile) {
+    //IDentifier ve keywordler case sensitive değil, hepsini o yüzden küçültüyoruz.
+    for(int i = 0; str[i]; i++){
+        str[i] = tolower(str[i]);
+    }
+
     //printf("isID %s\n", str);
     int length = strlen(str);
 
@@ -202,7 +207,7 @@ void handle(char line[], char token[], FILE *outputFile) {
     int length = strlen(line);
 
     for (int i = 0; i < length; i++) {
-        char new_char = tolower(line[i]);
+        char new_char = line[i];
 
         if (active_state == ID) {
             if (new_char == ' ' || new_char == '\n' || new_char == '\0') {
